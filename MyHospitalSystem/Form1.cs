@@ -19,10 +19,10 @@ namespace MyHospitalSystem
         {
             InitializeComponent();
         }
-
+        HospitalDbContext context = new HospitalDbContext();
         private void Form1_Load(object sender, EventArgs e)
         {
-            HospitalDbContext context = new HospitalDbContext();
+            
             context.Database.EnsureCreated();
 
             var allContext = context.Patients.Include(x => x.BloodType);
@@ -30,6 +30,7 @@ namespace MyHospitalSystem
 
             var data = allContext.Select(f => new
             {
+                f.Id,
                 Name=f.Name +" " + f.Surname,
                 f.IdentityNumber,
                 f.BirthDate,
@@ -57,6 +58,17 @@ namespace MyHospitalSystem
         {
             PatientUpdateForm patientAddForm = new PatientUpdateForm();
             patientAddForm.Show();
+        }
+
+        private void btn_delete_Click(object sender, EventArgs e)
+        {
+            var id = Convert.ToInt32(dgw_ListPatient.CurrentRow.Cells["Id"].Value.ToString());
+            var getContext = context.Patients.Include(x => x.BloodType).Where(x => x.Id == id).FirstOrDefault();
+            context.Patients.Remove(getContext);
+            int result = context.SaveChanges();
+            string message = result > 0 ? "Başarılı" : "Başarısız";
+
+            MessageBox.Show(message);
         }
     }
 }
